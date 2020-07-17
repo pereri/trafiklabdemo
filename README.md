@@ -1,1 +1,4 @@
 # trafiklabdemo
+
+./gradlew bootRun
+
