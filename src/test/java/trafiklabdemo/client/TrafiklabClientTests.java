@@ -61,12 +61,12 @@ class TrafiklabClientTests {
         mockBackEnd.shutdown();
     }
 
-    private TrafiklabClient client;
+    private TrafiklabClientImpl client;
 
     @BeforeEach
     void beforeEach() {
-        client = new TrafiklabClient(UUID.randomUUID().toString(),
-                                     String.format("http://%s:%s", mockBackEnd.getHostName(), mockBackEnd.getPort()));
+        client = new TrafiklabClientImpl(UUID.randomUUID().toString(),
+                                         String.format("http://%s:%s", mockBackEnd.getHostName(), mockBackEnd.getPort()));
     }
 
 

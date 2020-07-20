@@ -6,19 +6,23 @@ import reactor.core.publisher.Mono;
 @UtilityClass
 public class AppErrors {
 
-    public boolean notAppError(Throwable t) {
+    public boolean notAppError(final Throwable t) {
         return !t.getClass().isAssignableFrom(ApplicationException.class);
     }
 
-    public ApplicationException toResponseException(Throwable t) {
+    public ApplicationException toResponseException(final Throwable t) {
         return new TLResponseException(t.getMessage());
     }
 
-    public <T> Mono<T> newResponseException(String message) {
+    public InternalErrorException newInternalError(final String message) {
+        return new InternalErrorException(message);
+    }
+
+    public <T> Mono<T> newResponseException(final String message) {
         return Mono.error(new TLResponseException(message));
     }
 
-    public <T> Mono<T> notFound(String message) {
+    public <T> Mono<T> notFound(final String message) {
         return Mono.error(new NotFoundException(message));
     }
 

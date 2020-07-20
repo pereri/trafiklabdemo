@@ -14,9 +14,7 @@ public class BusLine {
     String lineDesignation;
     String defaultTransportMode;
     String defaultTransportModeCode;
-    //LocalDateTime lastModifiedUtcDateTime;
     String lastModifiedUtcDateTime;
-    //LocalDateTime existsFromDate;
     String existsFromDate;
 
     @JsonCreator

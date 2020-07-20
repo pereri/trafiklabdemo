@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
-import trafiklabdemo.client.TrafiklabClientInf;
+import trafiklabdemo.client.TrafiklabClient;
 import trafiklabdemo.client.model.BusLine;
 import trafiklabdemo.client.model.JourneyPatternPointOnLine;
 import trafiklabdemo.client.model.StopPoint;
@@ -24,11 +24,11 @@ import java.util.stream.Collectors;
 public class TrafiklabService {
 
     private static final Collection<JourneyPatternPointOnLine> EMPTY_SET = Set.of();
-    private final TrafiklabClientInf client;
+    private final TrafiklabClient client;
 
 
     @Autowired
-    public TrafiklabService(@Qualifier("CachedTrafiklabClient") final TrafiklabClientInf client) {
+    public TrafiklabService(@Qualifier("CachedTrafiklabClient") final TrafiklabClient client) {
         this.client = client;
     }
 
@@ -46,11 +46,11 @@ public class TrafiklabService {
         return Mono.zip(busStops, busLines, this::topBusLinesByStops);
     }
 
-    public Mono<List<StopPoint>> getStopsForLine(String lineNumber) {
+    public Mono<List<StopPoint>> getStopsForLine(final String lineNumber) {
         Mono<Void> validLineNumber = client.getBusLines()
-                                    .flatMapIterable(Function.identity())
-                                    .any(line -> lineNumber.equals(line.getLineNumber()))
-                                    .flatMap(lineExists -> lineExists ? Mono.empty() : AppErrors.notFound("Line number not found"));
+                                           .flatMapIterable(Function.identity())
+                                           .any(line -> lineNumber.equals(line.getLineNumber()))
+                                           .flatMap(lineExists -> lineExists ? Mono.empty() : AppErrors.notFound("Line number not found"));
 
 
         Mono<Set<String>> stopPointNumbers = client.getJourneyPoints()

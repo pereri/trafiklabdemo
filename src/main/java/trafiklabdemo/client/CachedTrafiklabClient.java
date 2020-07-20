@@ -14,56 +14,66 @@ import trafiklabdemo.client.model.BusLine;
 import trafiklabdemo.client.model.JourneyPatternPointOnLine;
 import trafiklabdemo.client.model.StopPoint;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 
 @Slf4j
 @Service
 @Qualifier("CachedTrafiklabClient")
-public class CachedTrafiklabClient implements TrafiklabClientInf {
+public class CachedTrafiklabClient implements TrafiklabClient {
 
-    private final TrafiklabClientInf client;
+    private final TrafiklabClient client;
     private final Cache cache;
 
     @Autowired
-    public CachedTrafiklabClient(final TrafiklabClient client,
+    public CachedTrafiklabClient(@Qualifier("TrafiklabClientImpl") final TrafiklabClient client,
                                  final CacheManager cache) {
         this.client = client;
         this.cache = Objects.requireNonNull(cache.getCache("trafiklab"));
     }
 
-    private <VALUE> Mono<Signal<? extends VALUE>> read(String key) {
+    private <VALUE> Mono<Signal<? extends VALUE>> read(final String key) {
         return Mono.create(s -> {
             Cache.ValueWrapper wrapper = cache.get(key);
             if (wrapper != null) {
-                s.success(Signal.next((VALUE) wrapper.get()));
+                s.success(Signal.next((VALUE) Objects.requireNonNull(wrapper.get())));
             } else {
                 s.success();
             }
         });
     }
 
-    private <VALUE> Mono<Void> write(String key, Signal<? extends VALUE> signal) {
+    private <VALUE> Mono<Void> write(final String key, final Signal<? extends VALUE> signal) {
         return Mono.just(signal)
                    .dematerialize()
                    .doOnNext(value -> cache.put(key, value))
                    .then();
     }
 
-    @Scheduled(cron = "0 0 3 * * *")
-    void reloadCache() {
-        log.info("reloading cache");
+    @PostConstruct
+    void load() {
+        log.debug("loading data");
         Mono.zip(client.getBusLines(),
                  client.getJourneyPoints(),
                  client.getBusLineStops())
             .doOnNext(tuple -> {
-                log.info("refreshing cache");
+                log.debug("data loaded, lines: {}, points: {}, stops: {}",
+                          tuple.getT1().size(),
+                          tuple.getT2().size(),
+                          tuple.getT3().size());
                 cache.put("lines", tuple.getT1());
                 cache.put("points", tuple.getT2());
                 cache.put("stops", tuple.getT3());
             })
             .then()
             .block();
+    }
+
+    @Scheduled(cron = "0 0 3 * * *")
+    void reloadCache() {
+        log.debug("reloading cache");
+        load();
     }
 
     @Override

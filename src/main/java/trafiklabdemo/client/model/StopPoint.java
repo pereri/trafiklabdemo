@@ -17,21 +17,19 @@ public class StopPoint {
     String locationEastingCoordinate;
     String zoneShortName;
     String stopAreaTypeCode;
-    //LocalDateTime lastModifiedUtcDateTime;
     String lastModifiedUtcDateTime;
-    //LocalDateTime existsFromDate;
     String existsFromDate;
 
     @JsonCreator
-    public static StopPoint create(@JsonProperty("StopPointNumber") String stopPointNumber,
-                                   @JsonProperty("StopPointName") String stopPointName,
-                                   @JsonProperty("StopAreaNumber") String stopAreaNumber,
-                                   @JsonProperty("LocationNorthingCoordinate") String locationNorthingCoordinate,
-                                   @JsonProperty("LocationEastingCoordinate") String locationEastingCoordinate,
-                                   @JsonProperty("ZoneShortName") String zoneShortName,
-                                   @JsonProperty("StopAreaTypeCode") String stopAreaTypeCode,
-                                   @JsonProperty("LastModifiedUtcDateTime") String lastModifiedUtcDateTime,
-                                   @JsonProperty("ExistsFromDate") String existsFromDate) {
+    public static StopPoint create(@JsonProperty("StopPointNumber") final String stopPointNumber,
+                                   @JsonProperty("StopPointName") final String stopPointName,
+                                   @JsonProperty("StopAreaNumber") final String stopAreaNumber,
+                                   @JsonProperty("LocationNorthingCoordinate") final String locationNorthingCoordinate,
+                                   @JsonProperty("LocationEastingCoordinate") final String locationEastingCoordinate,
+                                   @JsonProperty("ZoneShortName") final String zoneShortName,
+                                   @JsonProperty("StopAreaTypeCode") final String stopAreaTypeCode,
+                                   @JsonProperty("LastModifiedUtcDateTime") final String lastModifiedUtcDateTime,
+                                   @JsonProperty("ExistsFromDate") final String existsFromDate) {
         return new StopPoint(stopPointNumber,
                              stopPointName,
                              stopAreaNumber,

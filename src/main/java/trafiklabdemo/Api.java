@@ -27,14 +27,14 @@ public class Api {
     }
 
 
-    public BusLine toApiModel(trafiklabdemo.client.model.BusLine busLine) {
+    public BusLine toApiModel(final trafiklabdemo.client.model.BusLine busLine) {
         return new BusLine(
                 busLine.getLineNumber(),
                 busLine.getLineDesignation()
         );
     }
 
-    public StopPoint toApiModel(trafiklabdemo.client.model.StopPoint stopPoint) {
+    public StopPoint toApiModel(final trafiklabdemo.client.model.StopPoint stopPoint) {
         return new StopPoint(
                 stopPoint.getStopPointNumber(),
                 stopPoint.getStopPointName(),
