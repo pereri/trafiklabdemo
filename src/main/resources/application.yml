@@ -8,3 +8,10 @@ spring:
       spec: maximumSize=100
   codec:
     max-in-memory-size: 10MB
+
+---
+spring:
+  profiles: test
+
+apikey: "nothing"
+baseUrl: "http://localhost:8080?key={key}&DefaultTransportModeCode={code}&model={model}"

@@ -14,7 +14,6 @@ import trafiklabdemo.client.model.BusLine;
 import trafiklabdemo.client.model.JourneyPatternPointOnLine;
 import trafiklabdemo.client.model.StopPoint;
 
-import javax.annotation.PostConstruct;
 import java.util.List;
 import java.util.Objects;
 
@@ -23,6 +22,11 @@ import java.util.Objects;
 @Qualifier("CachedTrafiklabClient")
 public class CachedTrafiklabClient implements TrafiklabClient {
 
+    public static final String CACHE_NAME = "trafiklab";
+    public static final String LINES = "lines";
+    public static final String POINTS = "points";
+    public static final String STOPS = "stops";
+
     private final TrafiklabClient client;
     private final Cache cache;
 
@@ -30,7 +34,7 @@ public class CachedTrafiklabClient implements TrafiklabClient {
     public CachedTrafiklabClient(@Qualifier("TrafiklabClientImpl") final TrafiklabClient client,
                                  final CacheManager cache) {
         this.client = client;
-        this.cache = Objects.requireNonNull(cache.getCache("trafiklab"));
+        this.cache = Objects.requireNonNull(cache.getCache(CACHE_NAME));
     }
 
     private <VALUE> Mono<Signal<? extends VALUE>> read(final String key) {
@@ -51,48 +55,23 @@ public class CachedTrafiklabClient implements TrafiklabClient {
                    .then();
     }
 
-    @PostConstruct
-    void load() {
-        log.debug("loading data");
-        Mono.zip(client.getBusLines(),
-                 client.getJourneyPoints(),
-                 client.getBusLineStops())
-            .doOnNext(tuple -> {
-                log.debug("data loaded, lines: {}, points: {}, stops: {}",
-                          tuple.getT1().size(),
-                          tuple.getT2().size(),
-                          tuple.getT3().size());
-                cache.put("lines", tuple.getT1());
-                cache.put("points", tuple.getT2());
-                cache.put("stops", tuple.getT3());
-            })
-            .then()
-            .block();
-    }
-
-    @Scheduled(cron = "0 0 3 * * *")
-    void reloadCache() {
-        log.debug("reloading cache");
-        load();
-    }
-
     @Override
     public Mono<List<BusLine>> getBusLines() {
-        return CacheMono.<String, List<BusLine>>lookup(this::read, "lines")
+        return CacheMono.<String, List<BusLine>>lookup(this::read, LINES)
                 .onCacheMissResume(client.getBusLines())
                 .andWriteWith(this::write);
     }
 
     @Override
     public Mono<List<JourneyPatternPointOnLine>> getJourneyPoints() {
-        return CacheMono.<String, List<JourneyPatternPointOnLine>>lookup(this::read, "points")
+        return CacheMono.<String, List<JourneyPatternPointOnLine>>lookup(this::read, POINTS)
                 .onCacheMissResume(client.getJourneyPoints())
                 .andWriteWith(this::write);
     }
 
     @Override
     public Mono<List<StopPoint>> getBusLineStops() {
-        return CacheMono.<String, List<StopPoint>>lookup(this::read, "stops")
+        return CacheMono.<String, List<StopPoint>>lookup(this::read, STOPS)
                 .onCacheMissResume(client.getBusLineStops())
                 .andWriteWith(this::write);
     }
